@@ -34,7 +34,7 @@ socket.on('time', (timeMsg) => {
   clock.innerHTML = timeMsg
 })
 
-//Nu lägger vi till koden som visar alla meddelande som har skickats från de som är anslutna.
+// show the messages that have been send by users are connected
 socket.on('newChatMessage', function (msg) {
   let item = document.createElement('li')
   const formattedDate = new Date(msg.date).toLocaleString()

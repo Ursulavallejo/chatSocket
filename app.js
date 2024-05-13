@@ -8,8 +8,27 @@ const io = new Server(server)
 
 const port = 3000
 
+// Mongoose
+const ChatMessageModel = require('./models/chatMessageModel')
+
+const connectionMongoDB = require('./connectionMongoDB')
+connectionMongoDB()
+
 app.use(express.static('public'))
 
+// Endpoint to show message in mongoDB
+app.get('/messages', async (req, res) => {
+  try {
+    const allMessages = await ChatMessageModel.find()
+    return res.status(200).json(allMessages)
+  } catch (error) {
+    return res.status(500).json({
+      error: error.message,
+    })
+  }
+})
+
+//clock
 setInterval(() => {
   const today = new Date()
   const time = today.toLocaleString() // Get the current date and time in a localized format
@@ -27,6 +46,17 @@ io.on('connection', (socket) => {
       message: msg.message,
       date: new Date(),
     })
+    let today = new Date()
+    let dateTime = today.toLocaleString()
+    let user = msg.user
+    let message = msg.message
+    // Sparar till MongoDB med Mongoose
+    const newMessage = new ChatMessageModel({
+      message: message,
+      user: user,
+      date: dateTime,
+    })
+    newMessage.save()
   })
   socket.on('disconnect', () => {
     console.log(`Client ${socket.id} disconnected!`)

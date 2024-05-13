@@ -7,23 +7,32 @@
     <title>Chat Socket.IO</title>
   </head>
   <body>
-    <p id="clock"></p>
-    <div id="userContainer"></div>
-    <div id="user">
-      <h1>Write your name:</h1>
-      <form id="formUser">
-        <input type="text" id="inputUser" /><button>Write your name</button>
-      </form>
+    <div class="left-side">
+      <h1>GAME SHOULD COME HERE</h1>
+      <h1>Visa alla meddelanden</h1>
+
+      <ul id="allMessages"></ul>
     </div>
-    <div id="chat-message">
-      <form id="formChatMessage">
-        <input type="text" id="inputChatMessage" /><button>Send</button>
-      </form>
+    <div class="right-side">
+      <p id="clock"></p>
+      <div id="userContainer"></div>
+      <div id="user">
+        <h1>Write your name:</h1>
+        <form id="formUser">
+          <input type="text" id="inputUser" /><button>Write your name</button>
+        </form>
+      </div>
+      <div id="chat-message">
+        <form id="formChatMessage">
+          <input type="text" id="inputChatMessage" /><button>Send</button>
+        </form>
+      </div>
+      <h2>Chat messages:</h2>
+      <ul id="messages"></ul>
     </div>
-    <h2>Chat messages:</h2>
-    <ul id="messages"></ul>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="client.js"></script>
+    <script src="js/fetch-message.js"></script>
   </body>
 </html>
