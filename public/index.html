@@ -14,21 +14,36 @@
       <ul id="allMessages"></ul>
     </div>
     <div class="right-side">
-      <p id="clock"></p>
-      <div id="userContainer"></div>
+      <div id="userContainer">
+        <div id="close-chat">
+          <i class="ph-x-fill"></i>
+        </div>
+      </div>
       <div id="user">
         <h1>Write your name:</h1>
         <form id="formUser">
-          <input type="text" id="inputUser" /><button>Write your name</button>
+          <input type="text" id="inputUser" placeholder="Your name" />
+          <select id="genderSelect">
+            <option value="women">Female</option>
+            <option value="men">Male</option>
+          </select>
+          <button>Send</button>
         </form>
       </div>
-      <div id="chat-message">
-        <form id="formChatMessage">
-          <input type="text" id="inputChatMessage" /><button>Send</button>
-        </form>
+
+      <div id="messages-container">
+        <div id="chat-message">
+          <div id="last-seen"><p id="clock"></p></div>
+
+          <div class="messages">
+            <h2>Chat messages:</h2>
+            <ul id="messages"></ul>
+          </div>
+          <form id="formChatMessage">
+            <input type="text" id="inputChatMessage" /><button>Send</button>
+          </form>
+        </div>
       </div>
-      <h2>Chat messages:</h2>
-      <ul id="messages"></ul>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
