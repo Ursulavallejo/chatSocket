@@ -4,14 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="main.css" />
+    <link rel="stylesheet" type="text/css" href="./css/chatStyles.css" />
+    <link rel="stylesheet" type="text/css" href="./css/gameStyles.css" />
     <title>Chat Socket.IO</title>
   </head>
   <body>
     <div class="left-side">
       <h1>GAME SHOULD COME HERE</h1>
-      <h1>Visa alla meddelanden</h1>
-
-      <ul id="allMessages"></ul>
+      <div id="gameContainer">
+        <div id="board">
+          <div id="playArea">
+            <div id="endGameMessage"></div>
+            <div id="button-game">
+              <input
+                type="button"
+                value="ROLL DICE"
+                id="roll"
+                class="image-button"
+              />
+            </div>
+          </div>
+          <div class="dice-container">
+            <!-- <div class="dice" id="die1">
+              <img src="./assets/dice1.png" class="face" />
+            </div> -->
+          </div>
+        </div>
+      </div>
     </div>
     <div class="right-side">
       <div id="userContainer">
@@ -29,11 +48,22 @@
           </select>
           <button>Send</button>
         </form>
+        <div id="usernameError">Please provide a username.</div>
       </div>
 
       <div id="messages-container">
         <div id="chat-message">
-          <div id="last-seen"><p id="clock"></p></div>
+          <div id="last-seen">
+            <p id="clock"></p>
+          </div>
+          <input id="button-view-data" value="view historic" />
+
+          <div id="chat-historic">
+            <h1>Previous Messages</h1>
+
+            <ul id="allMessages"></ul>
+            <input id="button-hide-data" value="hide" />
+          </div>
 
           <div class="messages">
             <h2>Chat messages:</h2>
@@ -47,7 +77,7 @@
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
-    <script src="js/fetch-message.js"></script>
+    <script type="module" src="client.js"></script>
+    <script type="module" src="js/fetch-message.js"></script>
   </body>
 </html>
