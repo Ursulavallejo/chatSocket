@@ -20,7 +20,7 @@ const rollDiceButton = document.querySelector('#roll')
 const buttonContainer = document.querySelector('#button-game')
 
 // Disable the roll dice button initially
-// rollDiceButton.disabled = true
+rollDiceButton.disabled = true
 
 const diceContainer = document.querySelector('.dice-container')
 const endGameMessage = document.querySelector('#endGameMessage')
@@ -148,7 +148,7 @@ buttonHideChatHistoric.addEventListener('click', function (e) {
 
 // GAME
 
-// GAME
+// THis NOT working
 
 // function handleRollDiceButtonClick() {
 //   if (!myUser) {
@@ -170,16 +170,16 @@ buttonHideChatHistoric.addEventListener('click', function (e) {
 //   }
 // }
 
-// Add event listener to the roll dice button
-// rollDiceButton.addEventListener('click', handleRollDiceButtonClick)
-
-rollDiceButton.addEventListener('click', function () {
+function rollDiceButtonClickHandler() {
   // Emit a "gameMessage" event to the server
   socket.emit('gameMessage', {
     user: myUser,
     total: userTotals[myUser],
   })
-})
+}
+
+// Add event listener to the roll dice button
+rollDiceButton.addEventListener('click', rollDiceButtonClickHandler)
 
 socket.on('newGameMessage', function (msg) {
   // Format the date
@@ -204,14 +204,62 @@ socket.on('gameWinner', (data) => {
   // Display the end game message with the winner and the total reached
   endGameMessage.textContent = `${data.winner} has won the game with a total of ${data.total} points!`
 
-  setTimeout(() => {
+  // Disable the roll dice button
+  rollDiceButton.disabled = true
+
+  // Show a new button to reset or play again
+  const resetButton = document.createElement('button')
+  resetButton.textContent = 'Reset'
+  resetButton.id = 'reset-button'
+  buttonContainer.appendChild(resetButton)
+
+  // Add event listener to the reset button
+  resetButton.addEventListener('click', () => {
+    // Enable the roll dice button
+    rollDiceButton.disabled = false
+
+    // Remove the reset button
+    resetButton.remove()
+
+    // Clear the end game message
     endGameMessage.textContent = ''
-  }, 5000)
-  // Restart the game
-  socket.emit('restartGame')
+
+    // Emit an event to reset the game
+    socket.emit('resetGame')
+  })
 })
 
-// socket.on('gameRestarted', () => {
-//   // Clear the end game message when the game is restarted
-//   endGameMessage.textContent = ''
+// socket.on('gameLoser', (data) => {
+//   // Display the end game message with the loser and the total reached
+//   endGameMessage.textContent = `${data.loser} has exceed 21 points! With ${data.total} points! You loose!`
+
+//   setTimeout(() => {
+//     endGameMessage.textContent = ''
+//   }, 7000)
+//   // Restart the game
+//   socket.emit('restartGame')
 // })
+
+socket.on('gameReset', () => {
+  // Clear the end game message on the client side
+  if (endGameMessage) {
+    // Remove the redefinition of endGameMessage
+    endGameMessage.textContent = ''
+  }
+
+  // Clear the dice results
+  const diceContainer = document.querySelector('.dice-container')
+  if (diceContainer) {
+    diceContainer.innerHTML = ''
+  }
+
+  // Enable the roll dice button
+  const rollDiceButton = document.querySelector('#roll')
+  if (rollDiceButton) {
+    rollDiceButton.disabled = false
+
+    console.log('button activaded')
+
+    rollDiceButton.addEventListener('click', rollDiceButtonClickHandler)
+  }
+})

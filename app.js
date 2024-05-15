@@ -53,7 +53,8 @@ const userColors = {}
 const predefinedColors = ['#07847e', '#7549a7', '#99ceb4', '#c3af58', '#e4a9ef']
 let colorIndex = 0
 
-const userTotals = {}
+let userTotals = {}
+let gameEnded = false
 
 io.on('connection', (socket) => {
   // Generate a random color for the user
@@ -93,50 +94,78 @@ io.on('connection', (socket) => {
   })
 
   socket.on('gameMessage', async (msg) => {
+    // if (gameEnded) {
+    //   return // If the game has ended, ignore new messages
+    // }
+    // THIS IS NOT WORKING WHY
     if (!msg.user) {
-      // If the user is not authenticated, send an error message
       socket.emit('errorMessage', {
         message: 'To play, you need to be logged in.',
       })
+      return
     } else {
-      // If the user is authenticated, continue with the game logic
-      // Generate a random number between 1 and 6 for the dice roll
-      const diceRoll = Math.floor(Math.random() * 6) + 1
+      if (!gameEnded) {
+        // If the user is authenticated, continue with the game logic
+        // Generate a random number between 1 and 6 for the dice roll
+        const diceRoll = Math.floor(Math.random() * 6) + 1
 
-      // Calculate the total sum of all dice rolls
-      const total = (msg.total || 0) + diceRoll
+        // Calculate the total sum of all dice rolls
+        const total = (msg.total || 0) + diceRoll
 
-      // Update total user
-      userTotals[msg.user] = total
+        // Update total user
+        userTotals[msg.user] = total
 
-      console.log(
-        'Message: ' +
-          msg.user +
-          ' , DiceRol: ' +
-          diceRoll +
-          ' , Total: ' +
-          total
-      )
+        console.log(
+          'Message: ' +
+            msg.user +
+            ' , DiceRol: ' +
+            diceRoll +
+            ' , Total: ' +
+            total
+        )
 
-      //verify user has recahed 21 points
-      // if (total >= 21) {
-      //   io.emit('gameWinner', { winner: msg.user, total: total })
-      //   Object.keys(userTotals).forEach((user) => {
-      //     userTotals[user] = 0
-      //   })
-      //   io.emit('gameRestarted')
-      // }
-      if (total === 21) {
-        // If the total is exactly 21, declare the winner
-        io.emit('gameWinner', { winner: msg.user, total: total })
-      } else if (total > 21) {
-        // If the total exceeds 21, the player loses but the game continues
-        io.emit('gameLoser', { loser: msg.user, total: total })
-        userTotals[msg.user] = 0 // Reset the total to 0 for the losing player
-      }
+        // Check if the total reaches 21 for any player
+        const players = Object.keys(userTotals)
 
-      //GAME
-      else
+        for (const player of players) {
+          if (userTotals[player] === 21) {
+            console.log(`${player} Won with ${userTotals[player]}`)
+            // If any player reaches 21 points, declare them the winner and end the game
+            io.emit('gameWinner', {
+              winner: player,
+              total: 21,
+            })
+            gameEnded = true
+            break
+          }
+        }
+
+        // If the game hasn't ended yet, continue with the game logic
+        if (!gameEnded) {
+          // Check if any player exceeds 21 points
+          for (const player of players) {
+            if (userTotals[player] > 21) {
+              console.log(
+                `${player} exceeded 21 points with a total of ${userTotals[player]}`
+              )
+              // If any player exceeds 21 points, the game ends, and the other player wins
+              // Emit a gameLoser event for the player who exceeds 21 points
+              // io.emit('gameLoser', {
+              //   loser: player,
+              //   total: userTotals[player],
+              // })
+              // The other player wins
+              const winner = players.find((p) => p !== player)
+              io.emit('gameWinner', {
+                winner: winner,
+                total: userTotals[winner],
+              })
+              gameEnded = true
+              break
+            }
+          }
+        }
+
         io.emit('newGameMessage', {
           user: msg.user,
           date: new Date(),
@@ -145,21 +174,33 @@ io.on('connection', (socket) => {
           color: userColors[socket.id],
         })
 
-      let today = new Date()
-      let dateTime = today.toLocaleString()
-      let user = msg.user
-      let diceResult = diceRoll
-      let sum = total
+        let today = new Date()
+        let dateTime = today.toLocaleString()
+        let user = msg.user
+        let diceResult = diceRoll
+        let sum = total
 
-      // Sparar till MongoDB med Mongoose
-      const newGameMessage = new GameMessageModel({
-        user: user,
-        date: dateTime,
-        total: sum,
-        diceResult: diceResult,
-      })
-      newGameMessage.save()
+        // Sparar till MongoDB med Mongoose
+        const newGameMessage = new GameMessageModel({
+          user: user,
+          date: dateTime,
+          total: sum,
+          diceResult: diceResult,
+        })
+        newGameMessage.save()
+      }
     }
+  })
+
+  //  TO RESET THE GAME
+
+  socket.on('resetGame', () => {
+    // Clear any game-related data or variables
+
+    userTotals = {} // Reset user totals
+
+    // Emit an event to inform clients that the game has been reset
+    io.emit('gameReset')
   })
 
   socket.on('disconnect', () => {
