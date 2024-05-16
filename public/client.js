@@ -4,39 +4,35 @@ import fetchAndDisplayMessages, {
   append,
 } from './js/fetch-message.js'
 
-//CHAT
+//CHAT query selectors
 const formUser = document.querySelector('#formUser')
 const inputUser = document.querySelector('#inputUser')
 const messages = document.querySelector('#messages')
 const formChatMessage = document.querySelector('#formChatMessage')
-// const input = document.querySelector('#inputChatMessage')
 const userContainer = document.querySelector('#userContainer')
 const clock = document.querySelector('#clock')
 const buttonShowChatHistoric = document.querySelector('#button-view-data')
 const buttonHideChatHistoric = document.querySelector('#button-hide-data')
 
-//GAME
+//GAME query selectors
 const rollDiceButton = document.querySelector('#roll')
 const buttonContainer = document.querySelector('#button-game')
-
-// Disable the roll dice button initially
-rollDiceButton.disabled = true
-
 const diceContainer = document.querySelector('.dice-container')
 const endGameMessage = document.querySelector('#endGameMessage')
 
+// Disable the roll dice button initially
+rollDiceButton.disabled = true
 let myUser = null
-const userTotals = {}
+let userTotals = {}
 
-// CHAT
+// CHAT >>>>>>
+
 formUser.addEventListener('submit', function (e) {
   e.preventDefault()
-  // myUser = inputUser.value
   const username = inputUser.value.trim()
 
   if (!username) {
     document.getElementById('usernameError').style.display = 'block'
-    // alert('Please provide a username.')
     return
   } else {
     document.getElementById('usernameError').style.display = 'none'
@@ -117,7 +113,6 @@ socket.on('newChatMessage', function (msg) {
   // Apply a random background color to the message
   item.style.backgroundColor = msg.color
 
-  // item.textContent = msg.user + ': ' + msg.message + ' (' + formattedDate + ')'
   item.textContent = msg.user + ': ' + msg.message
 
   let dateSpan = document.createElement('span')
@@ -146,31 +141,10 @@ buttonHideChatHistoric.addEventListener('click', function (e) {
   document.querySelector('#chat-historic').style.display = 'none'
 })
 
-// GAME
-
-// THis NOT working
-
-// function handleRollDiceButtonClick() {
-//   if (!myUser) {
-//     // If not logged in, display an error message on the DOM
-//     const errorMessage = document.createElement('p')
-//     errorMessage.textContent = 'To play, you need to be logged in.'
-//     errorMessage.classList.add('error-message')
-//     buttonContainer.appendChild(errorMessage)
-
-//     setTimeout(() => {
-//       errorMessage.remove()
-//     }, 3000)
-//   } else {
-//     // Send game message with user's total
-//     socket.emit('gameMessage', {
-//       user: myUser,
-//       total: userTotals[myUser], // Pass the current user total to the server
-//     })
-//   }
-// }
+// GAME >>>>>
 
 function rollDiceButtonClickHandler() {
+  console.log(userTotals)
   // Emit a "gameMessage" event to the server
   socket.emit('gameMessage', {
     user: myUser,
@@ -224,23 +198,16 @@ socket.on('gameWinner', (data) => {
     // Clear the end game message
     endGameMessage.textContent = ''
 
+    userTotals = {}
+
     // Emit an event to reset the game
     socket.emit('resetGame')
+    console.log('GameWinner')
   })
 })
 
-// socket.on('gameLoser', (data) => {
-//   // Display the end game message with the loser and the total reached
-//   endGameMessage.textContent = `${data.loser} has exceed 21 points! With ${data.total} points! You loose!`
-
-//   setTimeout(() => {
-//     endGameMessage.textContent = ''
-//   }, 7000)
-//   // Restart the game
-//   socket.emit('restartGame')
-// })
-
 socket.on('gameReset', () => {
+  console.log('gamereset')
   // Clear the end game message on the client side
   if (endGameMessage) {
     // Remove the redefinition of endGameMessage
@@ -258,8 +225,6 @@ socket.on('gameReset', () => {
   if (rollDiceButton) {
     rollDiceButton.disabled = false
 
-    console.log('button activaded')
-
-    rollDiceButton.addEventListener('click', rollDiceButtonClickHandler)
+    // rollDiceButton.addEventListener('click', rollDiceButtonClickHandler)
   }
 })

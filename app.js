@@ -53,13 +53,12 @@ const userColors = {}
 const predefinedColors = ['#07847e', '#7549a7', '#99ceb4', '#c3af58', '#e4a9ef']
 let colorIndex = 0
 
+// This are for the gameLogic
+
 let userTotals = {}
 let gameEnded = false
 
 io.on('connection', (socket) => {
-  // Generate a random color for the user
-  // const userColor = getRandomColor()
-
   // Select a color from the predefined array
   const userColor = predefinedColors[colorIndex]
 
@@ -84,6 +83,7 @@ io.on('connection', (socket) => {
     let dateTime = today.toLocaleString()
     let user = msg.user
     let message = msg.message
+
     // Sparar till MongoDB med Mongoose
     const newMessage = new ChatMessageModel({
       message: message,
@@ -94,9 +94,8 @@ io.on('connection', (socket) => {
   })
 
   socket.on('gameMessage', async (msg) => {
-    // if (gameEnded) {
-    //   return // If the game has ended, ignore new messages
-    // }
+    console.log('gamemessage')
+
     // THIS IS NOT WORKING WHY
     if (!msg.user) {
       socket.emit('errorMessage', {
@@ -104,10 +103,11 @@ io.on('connection', (socket) => {
       })
       return
     } else {
+      // If the user is authenticated, continue with the game logic
       if (!gameEnded) {
-        // If the user is authenticated, continue with the game logic
         // Generate a random number between 1 and 6 for the dice roll
         const diceRoll = Math.floor(Math.random() * 6) + 1
+        console.log('numberDice')
 
         // Calculate the total sum of all dice rolls
         const total = (msg.total || 0) + diceRoll
@@ -149,11 +149,7 @@ io.on('connection', (socket) => {
                 `${player} exceeded 21 points with a total of ${userTotals[player]}`
               )
               // If any player exceeds 21 points, the game ends, and the other player wins
-              // Emit a gameLoser event for the player who exceeds 21 points
-              // io.emit('gameLoser', {
-              //   loser: player,
-              //   total: userTotals[player],
-              // })
+
               // The other player wins
               const winner = players.find((p) => p !== player)
               io.emit('gameWinner', {
@@ -199,6 +195,8 @@ io.on('connection', (socket) => {
 
     userTotals = {} // Reset user totals
 
+    gameEnded = false
+
     // Emit an event to inform clients that the game has been reset
     io.emit('gameReset')
   })
@@ -209,16 +207,6 @@ io.on('connection', (socket) => {
     delete userColors[socket.id]
   })
 })
-
-// Function to generate a random color
-// function getRandomColor() {
-//   const letters = '0123456789ABCDEF'
-//   let color = '#'
-//   for (let i = 0; i < 6; i++) {
-//     color += letters[Math.floor(Math.random() * 16)]
-//   }
-//   return color
-// }
 
 server.listen(port, () => {
   console.log(`Socket.IO server running at http://localhost:${port}/`)
