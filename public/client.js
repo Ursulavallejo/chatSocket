@@ -17,7 +17,9 @@ const buttonHideChatHistoric = document.querySelector('#button-hide-data')
 //GAME query selectors
 const rollDiceButton = document.querySelector('#roll')
 const buttonContainer = document.querySelector('#button-game')
-const diceContainer = document.querySelector('.dice-container')
+const board = document.querySelector('#board')
+
+const textResultGame = document.querySelector('.text-resultsGame')
 const endGameMessage = document.querySelector('#endGameMessage')
 
 // Disable the roll dice button initially
@@ -144,16 +146,28 @@ buttonHideChatHistoric.addEventListener('click', function (e) {
 // GAME >>>>>
 
 function rollDiceButtonClickHandler() {
-  console.log(userTotals)
+  let rollSound = new Audio('./assets/roll.wav')
+  console.log('buttonRoll')
+
+  // Trigger the rolling animation by adding a CSS class to the dice container
+  const diceContainer = document.querySelector('.dice-container')
+  diceContainer.classList.add('rolling')
+
   // Emit a "gameMessage" event to the server
-  socket.emit('gameMessage', {
-    user: myUser,
-    total: userTotals[myUser],
-  })
+  setTimeout(() => {
+    socket.emit('gameMessage', {
+      user: myUser,
+      total: userTotals[myUser],
+    })
+  }, 1000)
+  rollSound.play()
 }
 
 // Add event listener to the roll dice button
 rollDiceButton.addEventListener('click', rollDiceButtonClickHandler)
+
+// for the error message when not loged in
+board.addEventListener('click', rollDiceButtonClickHandler)
 
 socket.on('newGameMessage', function (msg) {
   // Format the date
@@ -171,12 +185,30 @@ socket.on('newGameMessage', function (msg) {
     msg.diceResult
   }, Total: ${userTotals[msg.user]} (${formattedDate})`
 
-  diceContainer.appendChild(item)
+  textResultGame.appendChild(item)
+  // Remove rolling animation after a delay
+  setTimeout(() => {
+    const diceContainer = document.querySelector('.dice-container')
+    diceContainer.classList.remove('rolling')
+
+    // Update the dice face image based on the dice result
+    const diceFace = document.querySelector('.dice .face')
+    diceFace.src = `./assets/dice${msg.diceResult}.png`
+  }, 500) // Adjust the delay to match the animation duration plus a buffer
 })
 
 socket.on('gameWinner', (data) => {
+  // Check if there are other players
+  const winnerMessage =
+    Object.keys(userTotals).length > 1
+      ? `${data.winner} has won the game with a total of ${data.total} points!`
+      : 'You have exceeded 21 points and lost the game.'
+
+  // Display the end game message
+  endGameMessage.textContent = winnerMessage
+
   // Display the end game message with the winner and the total reached
-  endGameMessage.textContent = `${data.winner} has won the game with a total of ${data.total} points!`
+  // endGameMessage.textContent = `${data.winner} has won the game with a total of ${data.total} points!`
 
   // Disable the roll dice button
   rollDiceButton.disabled = true
@@ -206,18 +238,37 @@ socket.on('gameWinner', (data) => {
   })
 })
 
+socket.on('errorMessage', (data) => {
+  console.log('error', data)
+  endGameMessage.textContent = `${data.message}`
+  setTimeout(() => {
+    endGameMessage.textContent = ''
+    const diceContainer = document.querySelector('.dice-container')
+    diceContainer.classList.remove('rolling')
+  }, 1000)
+})
+
 socket.on('gameReset', () => {
   console.log('gamereset')
   // Clear the end game message on the client side
   if (endGameMessage) {
     // Remove the redefinition of endGameMessage
-    endGameMessage.textContent = ''
+    endGameMessage.textContent = 'the game is reset!! Ready to play again..'
+    setTimeout(() => {
+      endGameMessage.textContent = ''
+    }, 3000)
   }
 
   // Clear the dice results
-  const diceContainer = document.querySelector('.dice-container')
-  if (diceContainer) {
-    diceContainer.innerHTML = ''
+  const textResultGame = document.querySelector('.text-resultsGame')
+  if (textResultGame) {
+    textResultGame.innerHTML = ''
+  }
+
+  // Remove the reset button
+  const resetButton = document.querySelector('#reset-button')
+  if (resetButton) {
+    resetButton.remove()
   }
 
   // Enable the roll dice button

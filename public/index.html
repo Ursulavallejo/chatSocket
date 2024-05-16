@@ -10,7 +10,9 @@
   </head>
   <body>
     <div class="left-side">
-      <h1>GAME SHOULD COME HERE</h1>
+      <h1><span>DICE Game </span>... Try your Luck!!</h1>
+
+      <p>First to get 21 is the winner...</p>
       <div id="gameContainer">
         <div id="board">
           <div id="playArea">
@@ -18,20 +20,25 @@
             <div id="button-game">
               <input
                 type="button"
-                value="ROLL DICE"
+                value="ROLL"
                 id="roll"
                 class="image-button"
               />
             </div>
           </div>
           <div class="dice-container">
-            <!-- <div class="dice" id="die1">
-              <img src="./assets/dice1.png" class="face" />
-            </div> -->
+            <div class="dice" id="die1">
+              <img src="./assets/dice1.png" class="face" id="face1" />
+              <img src="./assets/dice2.png" class="face" id="face2" />
+              <img src="./assets/dice3.png" class="face" id="face3" />
+              <img src="./assets/dice4.png" class="face" id="face4" />
+              <img src="./assets/dice5.png" class="face" id="face5" />
+              <img src="./assets/dice6.png" class="face" id="face6" />
+            </div>
           </div>
         </div>
-        <div class="text-resultsGame"></div>
       </div>
+      <div class="text-resultsGame"></div>
     </div>
     <div class="right-side">
       <div id="userContainer">
@@ -41,6 +48,7 @@
       </div>
       <div id="user">
         <h1>Write your name:</h1>
+        <p>To play, you need to be logged in.</p>
         <form id="formUser">
           <input type="text" id="inputUser" placeholder="Your name" />
           <select id="genderSelect">

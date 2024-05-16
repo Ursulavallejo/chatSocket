@@ -98,6 +98,7 @@ io.on('connection', (socket) => {
 
     // THIS IS NOT WORKING WHY
     if (!msg.user) {
+      console.log('error message')
       socket.emit('errorMessage', {
         message: 'To play, you need to be logged in.',
       })
