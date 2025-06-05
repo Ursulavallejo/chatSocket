@@ -78,8 +78,12 @@ formUser.addEventListener('submit', function (e) {
   document.querySelector('#user').style.display = 'none'
   document.querySelector('#chat-message').style.display = 'block'
 
-  // Enable the roll dice button after user logs in
+  // Show and enable the roll dice button after user logs in
+  rollDiceButton.style.display = 'visible'
   rollDiceButton.disabled = false
+
+  // Remove the event listener from the board to prevent double triggering
+  // board.removeEventListener('click', rollDiceButtonClickHandler)
 })
 
 formChatMessage.addEventListener('submit', function (e) {
@@ -194,7 +198,7 @@ socket.on('newGameMessage', function (msg) {
     // Update the dice face image based on the dice result
     const diceFace = document.querySelector('.dice .face')
     diceFace.src = `./assets/dice${msg.diceResult}.png`
-  }, 500) // Adjust the delay to match the animation duration plus a buffer
+  }, 500)
 })
 
 socket.on('gameWinner', (data) => {
@@ -206,9 +210,6 @@ socket.on('gameWinner', (data) => {
 
   // Display the end game message
   endGameMessage.textContent = winnerMessage
-
-  // Display the end game message with the winner and the total reached
-  // endGameMessage.textContent = `${data.winner} has won the game with a total of ${data.total} points!`
 
   // Disable the roll dice button
   rollDiceButton.disabled = true

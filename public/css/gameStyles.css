@@ -9,6 +9,11 @@
   /* background-color: brown; */
 }
 
+#roll {
+  /* to keep the size of the board */
+  visibility: hidden;
+}
+
 #playArea {
   min-height: 80%;
   display: flex;
@@ -95,10 +100,11 @@
 #endGameMessage {
   align-self: center;
   color: yellow;
-  font-size: 22px;
+  font-size: 16px;
   width: 100%;
   text-align: center;
-  /* transform: translateX(5%); */
+
+  transform: translateX(5%);
 }
 
 #roll {
